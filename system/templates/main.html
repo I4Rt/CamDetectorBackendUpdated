@@ -1,0 +1,165 @@
+{% extends "basic.html" %}
+
+{% block content %}
+    <div class="col-md-3 rounded bg-light mt-2 h-100 shadow " style='min-height:500px; height:500px'>
+        <div class="row d-flex  justify-content-center rounded bg-secondary text-light p-0"><b class='mb-1 ml-1' style='font-size:16px'>Фильтры</b></div>
+        <div class="row p-2">
+            <div class="col">
+                <div class="row mt-3">
+                    <div class="col-md-5"><h6>Месяц:</h6></div> 
+                    <div class="col-md-7"><input type='month' style='width:100%'></div> 
+                </div>
+                <div class="row">
+                    <button class='btn btn-link'>Все время</button>
+                </div>
+                <div class='row'>
+                    <div class="col">
+                        <h6>Даты:</h6>
+                    </div>
+                </div>
+                <div class="row p-2">
+                    <div class="col" style='max-height:150px; overflow-y:scroll'>
+                        <div class="row d-flex justify-content-left align-items-start">
+                            {%if warningDates%}
+                                {% for warnDate, counter in warningDates.items()%}
+                                    {%if counter > 10 %}
+                                        <div class='col  mr-1 btn btn-danger bg-danger p-0' style='height: 25px;'>
+                                    {%else:%}
+                                        <div class='col  mr-1 btn btn-warning bg-warning p-0' style='height: 25px;'>
+                                    {%endif%}
+                                            <a href="/main?date={{warnDate}}&month={{baseMonth}}">
+                                                <div class="row m-0">
+                                                    <div class="col-9 text-light p-0 mr-0">
+                                                        {{warnDate}}
+                                                    </div>
+                                                    <div class="text-light border-left col-3 p-0 mr-0">
+                                                        {{counter}}
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                {% endfor %}
+                            {%else%}
+                                <div class='col mr-1 text-secondary p-0 ' style='height: 25px;'>
+                                    Нарушения отсутствуют                            
+                                </div>
+                            {%endif%}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <hr>
+        <div class="row p-2">
+            <div class="col-6">
+                <h6>Тип нарушения</h6>
+            </div>
+            <div class="col-6"> 
+                <div class="d-flex justify-content-end">
+                    <select class='p-0 m-0'>
+                        <option value='0'>Все</option>
+                        <option value='1'>Нет на месте</option>
+                        <option value='2'>Съемка</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row p-2 d-flex align-items-center">
+            <div class="col">
+                <h6>Только новые</h6>
+            </div>
+            <div class="col-1"> 
+                <div class="d-flex justify-content-end">
+                    <input type="checkbox">
+                </div>
+            </div>
+        </div>
+        <hr>
+        <a class='row w-100 p-2 m-auto text-white font-weight-bold btn btn-primary'>Применить</a>
+    </div>
+    <div class="col-4 mt-2">
+        <div class="pr-3">
+            <div class='col p-0 rounded bg-light shadow h-100'>
+                <div class="row mw-100 m-0 h-100" style='height:500px'>
+                    <div class="col-5 border-right overflow-auto mh-100" style='height:500px'>
+                        <div class="row sticky-top text-center d-flex justify-content-center bg-secondary rounded-left">
+                            <h6 class='text-light m-1'>Рабочие места</h6>
+                        </div>
+                        {% for user, isNotChecked in users.items() %}
+                            <div class="row">
+                                {%if selectedUser != user%}
+                                    <a href="/main?date={{selectedDate}}&month={{baseMonth}}&selectedUser={{user}}" class='text-nowrap text-decoration-none text-truncate mw-100'>
+                                        {{user}}
+                                        {%if isNotChecked%} 
+                                        *
+                                        {%endif%}   
+                                    </a>
+                                {%else%}
+                                    <a class='font-weight-bold' href="/main?date={{selectedDate}}&month={{baseMonth}}&selectedUser={{user}}" class='text-nowrap text-decoration-none text-truncate mw-100'>
+                                        {{user}}
+                                        {%if isNotChecked%} 
+                                        *
+                                        {%endif%}   
+                                    </a>
+                                {%endif%}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-7 overflow-auto" style='height:500px'>
+                        <div class="row sticky-top text-center d-flex justify-content-center bg-secondary rounded-right">
+                            <h6 class='text-light m-1'>Нарушения</h6>
+                        </div>
+                        {% for warnName, warnData in warnings.items() %}
+                            {%if selectedWarning != warnData[0]%}
+                                <div class="row">
+                                    <a href="/main?date={{selectedDate}}&month={{baseMonth}}&selectedUser={{selectedUser}}&warnName={{warnData[0]}}">
+                                        {{warnName}}  
+                                        {%if warnData[1]%} 
+                                        *
+                                        {%endif%}   
+                                    </a>
+                                </div>  
+                            {%else%}
+                                <div class="row">
+                                    <a class='font-weight-bold' href="/main?date={{selectedDate}}&month={{baseMonth}}&selectedUser={{selectedUser}}&warnName={{warnData[0]}}">
+                                        {{warnName}}  
+                                    </a>
+                                </div>  
+                            {%endif%}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-5 rounded bg-light shadow p-0 mt-2 h-100">
+        <div class="row p-0 m-0 border-bottom" style='height: 370px; '>
+            {%if selectedImg == "" %}
+                <img class='m-0 p-0 w-100 h-100 rounded-top' src="system/select.png">
+            {%else %}
+                <img class='m-0 p-0 h-100 w-100 rounded' src="{{selectedImg}}" >
+                <!-- <div class='row w-100 ml-0 pr-3 pl-3' style='margin-top: -40px;'>
+                    <div class="col rounded bg-light">
+                        <div class="row d-flex align-items-center justify-content-space" style='height: 30px;'>
+                            <div class='col-10 border-right' style='font-size: 12px;'>{{img}}</div>
+                            <div class='col-2'>
+                                <a class='text-danger deleteLink' href="/del?date={{selectedDate}}&imgPath={{img}}&selectedUser={{curUser}}">Удалить</a>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+            {%endif %}
+        </div>
+        <div class="row d-flex d-flex justify-content-left align-items-center flex-nowrap overflow-auto p-0 m-0" style='height: 130px;'>
+            {%for imgRoute in imagesList%}
+                <a href='/main?date={{selectedDate}}&month={{baseMonth}}&selectedUser={{selectedUser}}&warnName={{selectedWarning}}&selectedImg={{imgRoute}}'>
+                    <img class='m-1' src="{{imgRoute}}" style='height: 110px; width: 180px'>
+                </a>
+            {%endfor%}
+        </div>  
+    </div>
+    
+{% endblock %}
