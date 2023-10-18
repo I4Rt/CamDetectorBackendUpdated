@@ -35,7 +35,7 @@ class SessionInterface:
             sessions.__queue[route]['queue'].append(indecator)
         else:
             sessions.__queue[route] = {'queue': [indecator]}
-        print(sessions.__queue[route])
+        # print(sessions.__queue[route])
         beginning = time()
         while sessions.__queue[route]['queue'].index(indecator): # should be 0 to pass thrue
             now = time()
@@ -43,7 +43,7 @@ class SessionInterface:
                 if timeout < now - beginning:
                     curSes.closeSession(route)
                     return None
-            sleep(0.1)
+            
             # breakpoint
         return curSes
     
@@ -58,7 +58,7 @@ class Session:
         # print(sessions.__dict__)
         if route in sessions._SessionInterface__queue:
             sessions._SessionInterface__queue[route]['queue'].remove(self.id)
-            print(sessions._SessionInterface__queue[route])
+            # print(sessions._SessionInterface__queue[route])
             return True
         return False
         

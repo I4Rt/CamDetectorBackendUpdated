@@ -148,7 +148,7 @@ class FileSystemInterface(FileMethods):
         @sessionly
         def inner(r):
             data = FileMethods._readTextFile(r)
-            print('read data is', data)
+            # print('read data is', data)
             return data
         return inner(route)
 

@@ -1,16 +1,17 @@
 {% extends "basic.html" %}
 
 {% block content %}
-    <div class="col-md-3 rounded bg-light mt-2 h-100 shadow " style='min-height:500px; height:500px'>
+    <form class="col-md-3 mb-0 rounded bg-light mt-2 h-100 shadow " style='min-height:500px; height:500px'>
         <div class="row d-flex  justify-content-center rounded bg-secondary text-light p-0"><b class='mb-1 ml-1' style='font-size:16px'>Фильтры</b></div>
         <div class="row p-2">
             <div class="col">
+                <div class="row p-2 d-flex align-items-center justify-content-between">
+                    <h6 class='m-0'><b>Время</b></h6>
+                    <a href='/main?selectedDate=&selectedMonth=&selectedType={{selectedType}}&onlyNew={{onlyNew}}'><div class='btn btn-link'>Все время</div></a>
+                </div>
                 <div class="row mt-3">
                     <div class="col-md-5"><h6>Месяц:</h6></div> 
-                    <div class="col-md-7"><input type='month' style='width:100%'></div> 
-                </div>
-                <div class="row">
-                    <button class='btn btn-link'>Все время</button>
+                    <div class="col-md-7"><input id='monthInput' value='{{selectedMonth}}' type='month' onchange="monthRedirect()" style='width:100%'></div> 
                 </div>
                 <div class='row'>
                     <div class="col">
@@ -18,22 +19,22 @@
                     </div>
                 </div>
                 <div class="row p-2">
-                    <div class="col" style='max-height:150px; overflow-y:scroll'>
-                        <div class="row d-flex justify-content-left align-items-start">
+                    <div class="col" style='max-height:80px; overflow-y:scroll'>
+                        <div class="row d-flex justify-content-left align-items-start flex-wrap">
                             {%if warningDates%}
-                                {% for warnDate, counter in warningDates.items()%}
-                                    {%if counter > 10 %}
-                                        <div class='col  mr-1 btn btn-danger bg-danger p-0' style='height: 25px;'>
+                                {% for warnDate, data in warningDates.items()%}
+                                    {%if data[0] > 10 %}
+                                        <div class='col-5 m-1 btn btn-danger bg-danger p-0' style='height: 25px;'>
                                     {%else:%}
-                                        <div class='col  mr-1 btn btn-warning bg-warning p-0' style='height: 25px;'>
+                                        <div class='col-5 m-1 btn btn-warning bg-warning p-0' style='height: 25px;'>
                                     {%endif%}
-                                            <a href="/main?date={{warnDate}}&month={{baseMonth}}">
+                                            <a href="/main?selectedDate={{data[2]}}&selectedMonth={{data[1]}}&selectedType={{selectedType}}&onlyNew={{onlyNew}}">
                                                 <div class="row m-0">
                                                     <div class="col-9 text-light p-0 mr-0">
                                                         {{warnDate}}
                                                     </div>
                                                     <div class="text-light border-left col-3 p-0 mr-0">
-                                                        {{counter}}
+                                                        {{data[0]}}
                                                     </div>
                                                 </div>
                                             </a>
@@ -58,10 +59,10 @@
             </div>
             <div class="col-6"> 
                 <div class="d-flex justify-content-end">
-                    <select class='p-0 m-0'>
-                        <option value='0'>Все</option>
-                        <option value='1'>Нет на месте</option>
-                        <option value='2'>Съемка</option>
+                    <select id='typeSelector' value='' onchange='setType()' class='p-0 m-0'>
+                        <option value='0' {%if selectedType == '0' %} selected {%endif%}>Все</option>
+                        <option value='1' {%if selectedType == '1' %} selected {%endif%}>Нет на месте</option>
+                        <option value='2' {%if selectedType == '2' %} selected {%endif%}>Съемка</option>
                     </select>
                 </div>
             </div>
@@ -73,13 +74,13 @@
             </div>
             <div class="col-1"> 
                 <div class="d-flex justify-content-end">
-                    <input type="checkbox">
+                    <input id='newCheckBox' onchange='setNewOnly()' type="checkbox" {%if onlyNew == 'true' %} checked {%endif%} >
                 </div>
             </div>
         </div>
         <hr>
-        <a class='row w-100 p-2 m-auto text-white font-weight-bold btn btn-primary'>Применить</a>
-    </div>
+        <!-- <a class='row w-100 p-2 m-auto text-white font-weight-bold btn btn-primary'>Применить</a> -->
+    </form>
     <div class="col-4 mt-2">
         <div class="pr-3">
             <div class='col p-0 rounded bg-light shadow h-100'>
@@ -91,14 +92,14 @@
                         {% for user, isNotChecked in users.items() %}
                             <div class="row">
                                 {%if selectedUser != user%}
-                                    <a href="/main?date={{selectedDate}}&month={{baseMonth}}&selectedUser={{user}}" class='text-nowrap text-decoration-none text-truncate mw-100'>
+                                    <a href="/main?selectedDate={{selectedDate}}&selectedMonth={{selectedMonth}}&selectedType={{selectedType}}&onlyNew={{onlyNew}}&selectedUser={{user}}" class='text-nowrap text-decoration-none text-truncate mw-100'>
                                         {{user}}
                                         {%if isNotChecked%} 
                                         *
                                         {%endif%}   
                                     </a>
                                 {%else%}
-                                    <a class='font-weight-bold' href="/main?date={{selectedDate}}&month={{baseMonth}}&selectedUser={{user}}" class='text-nowrap text-decoration-none text-truncate mw-100'>
+                                    <a class='font-weight-bold' href="/main?selectedDate={{selectedDate}}&selectedMonth={{selectedMonth}}&selectedType={{selectedType}}&onlyNew={{onlyNew}}&selectedUser={{user}}" class='text-nowrap text-decoration-none text-truncate mw-100'>
                                         {{user}}
                                         {%if isNotChecked%} 
                                         *
@@ -115,7 +116,7 @@
                         {% for warnName, warnData in warnings.items() %}
                             {%if selectedWarning != warnData[0]%}
                                 <div class="row">
-                                    <a href="/main?date={{selectedDate}}&month={{baseMonth}}&selectedUser={{selectedUser}}&warnName={{warnData[0]}}">
+                                    <a href="/main?selectedDate={{selectedDate}}&selectedMonth={{selectedMonth}}&selectedType={{selectedType}}&onlyNew={{onlyNew}}&selectedUser={{selectedUser}}&warnName={{warnData[0]}}">
                                         {{warnName}}  
                                         {%if warnData[1]%} 
                                         *
@@ -124,7 +125,7 @@
                                 </div>  
                             {%else%}
                                 <div class="row">
-                                    <a class='font-weight-bold' href="/main?date={{selectedDate}}&month={{baseMonth}}&selectedUser={{selectedUser}}&warnName={{warnData[0]}}">
+                                    <a class='font-weight-bold' href="/main?selectedDate={{selectedDate}}&selectedMonth={{selectedMonth}}&selectedType={{selectedType}}&onlyNew={{onlyNew}}&selectedUser={{selectedUser}}&warnName={{warnData[0]}}">
                                         {{warnName}}  
                                     </a>
                                 </div>  
@@ -155,11 +156,57 @@
         </div>
         <div class="row d-flex d-flex justify-content-left align-items-center flex-nowrap overflow-auto p-0 m-0" style='height: 130px;'>
             {%for imgRoute in imagesList%}
-                <a href='/main?date={{selectedDate}}&month={{baseMonth}}&selectedUser={{selectedUser}}&warnName={{selectedWarning}}&selectedImg={{imgRoute}}'>
-                    <img class='m-1' src="{{imgRoute}}" style='height: 110px; width: 180px'>
+                <a href='/main?selectedDate={{selectedDate}}&selectedMonth={{selectedMonth}}&selectedType={{selectedType}}&onlyNew={{onlyNew}}&selectedUser={{selectedUser}}&warnName={{selectedWarning}}&selectedImg={{imgRoute}}'>
+                    {%if imgRoute != slectedImg %}
+                        <img class='m-1' src="{{imgRoute}}" style='height: 110px; width: 180px'>
+                    {%else%}
+                    
+                        <img class='m-1' src="{{imgRoute}}" style='height: 110px; width: 180px; border: 2px solid rgb(43, 43, 241)'>
+                    {%endif%}
                 </a>
             {%endfor%}
         </div>  
     </div>
+    
+{% endblock %}
+
+{%block scripts%}
+    <script>
+        function monthRedirect(){
+            var input = document.getElementById("monthInput").value;
+            var dateEntered = new Date(input);
+            let month = dateEntered.getMonth() + 1;
+            month = month.toString()
+            month = month.length === 1 ? '0' + month : month
+            let year = dateEntered.getFullYear().toString();
+
+            window.location.replace("http://localhost:5000/main?selectedDate={{selectedDate}}&selectedMonth="+year+"-"+month+"&selectedType={{selectedType}}&onlyNew={{onlyNew}}");            
+        }
+        function dateRedirect(){
+            var input = document.getElementById("dateInput").value;
+            var dateEntered = new Date(input);
+            let day = dateEntered.getDate().toString();
+
+            day = day.length === 1 ? '0' + day : day
+            let month = dateEntered.getMonth() + 1;
+            month = month.toString()
+            console.log(month.length)
+            month = month.length === 1 ? '0' + month : month
+            let year = dateEntered.getFullYear().toString();
+            window.location.replace("http://localhost:5000/main?selectedDate="+day+"&selectedMonth="+year+"-"+month+"&selectedType={{selectedType}}&onlyNew={{onlyNew}}");            
+        }
+
+        function setType(){
+            var selectedType = document.getElementById("typeSelector").value;
+            window.location.replace("http://localhost:5000/main?selectedDate={{selectedDate}}&selectedMonth={{selectedMonth}}&selectedType="+selectedType+"&onlyNew={{onlyNew}}");            
+        }
+    
+        function setNewOnly(){
+            newCheckBox = document.getElementById("newCheckBox").checked;
+            window.location.replace("http://localhost:5000/main?selectedDate={{selectedDate}}&selectedMonth={{selectedMonth}}&selectedType={{selectedType}}&onlyNew="+newCheckBox);
+        }
+    </script>
+
+    
     
 {% endblock %}

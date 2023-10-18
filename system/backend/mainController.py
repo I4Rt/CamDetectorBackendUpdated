@@ -121,17 +121,53 @@ def main():
     selectedImg = request.args.get('selectedImg') 
     if not selectedImg:
         selectedImg = ""
+    selectedMonth = request.args.get('selectedMonth') 
+    selectedDay = request.args.get('selectedDate') 
+    if selectedMonth == 'None':
+        selectedMonth = None
+    if selectedDay == 'None':
+        selectedDay = None
+    selectedType = request.args.get('selectedType')
+    if selectedType == 'None':
+        selectedType = '0'
+        
+    onlyNew = request.args.get('onlyNew')
+    if onlyNew == 'None' or onlyNew == None:
+        onlyNew = 'false'
+    
+    if not selectedType:
+        selectedType = '0'
+            
+    
+    
+        
     warnings = {}
     allUsers = {}
     datesDict = {}
     imagesList = []
+    warningDates = {}
     dates = fsm.getFolderFiles('')
     for date in dates:
+        if selectedMonth:
+            if selectedDay:
+                print('comp', date, selectedMonth+'-'+selectedDay)
+                if date != selectedMonth+'-'+selectedDay:
+                    print('passing')
+                    continue
+            else:
+                print('comp', date[:7], selectedMonth)
+                if date[:7] != selectedMonth:
+                    print('passing')
+                    continue
+        count = 0
         if date == 'system':
             continue
         datesDict[date] = {}
         types = fsm.getFolderFiles(date)
         for tp in types:
+            if selectedType != '0':
+                if selectedType != tp:
+                    continue
             datesDict[date][tp] = {}
             users = fsm.getFolderFiles(f'{date}/{tp}')
             for user in users:
@@ -140,27 +176,55 @@ def main():
                 datesDict[date][tp][user] = {}
                 cases = fsm.getFolderFiles(f'{date}/{tp}/{user}')
                 for cs in cases:
+                    i = 0
                     if cs != 'data.txt':
+                        
+                        
                         data = json.loads(fsm.readFileSystemTxt(f'{date}/{tp}/{user}/{cs}/data.txt'))
                         datesDict[date][tp][user][cs] = {
                                                         'images':[f'{date}/{tp}/{user}/{cs}/images/{name}' for name in fsm.getFolderFiles(f'{date}/{tp}/{user}/{cs}/images')],
                                                         'data': data
                                                         }
-                        
-                        allUsers[user] = max(not data['checked'], False)
-                        print(selectedWarning, f'{date}/{tp}/{user}/{cs}')
+                        if onlyNew == 'false' or not data['checked']:
+                            count += 1
+                            
+                        if not data['checked']:
+                            allUsers[user] = True
                         if selectedWarning == f'{date}/{tp}/{user}/{cs}':
                             fsm.doFileSystemJsonFileWorks(f'{date}/{tp}/{user}/{cs}/data.txt', setChecked)
                             datesDict[date][tp][user][cs]['data']['checked'] = True
                             imagesList = datesDict[date][tp][user][cs]['images']
                         if selectedUser == user:
-                            warnings[f'{date} {data["begin"]} | type: {tp}'] = {'route': f'{date}/{tp}/{user}/{cs}', 'notChecked': not datesDict[date][tp][user][cs]['data']['checked']}
-                            
+                            if onlyNew == 'true':
+                                if datesDict[date][tp][user][cs]['data']['checked']:
+                                    continue
+                            warnings[f'{date} {data["begin"]}|{cs}|type: {tp}'] = {'route': f'{date}/{tp}/{user}/{cs}', 'notChecked': not datesDict[date][tp][user][cs]['data']['checked']}
+        
+        warningDates[date] = [count, date[:-3], date[-2:]]    
     
+    newWarningDates = {}
+    for dt in warningDates:
+        if warningDates[dt][0] != 0:
+            newWarningDates[dt] = warningDates[dt]
+    warningDates = newWarningDates   
+              
+    if selectedImg == "" and len(imagesList):
+        selectedImg = imagesList[0]
     
+    if onlyNew == 'true':
+        newAllUsers ={}
+        for u in allUsers:
+            if allUsers[u]:
+                newAllUsers[u] = True
+        allUsers = newAllUsers
     sortedWarns = {}
     for k in sorted(warnings):
         sortedWarns[k] = [warnings[k]['route'], warnings[k]['notChecked']]
     # print('warns', sorted(warnings))
-    print(datesDict)
-    return render_template('main.html',  users=allUsers, selectedUser=selectedUser, warnings=sortedWarns, selectedWarning=selectedWarning, imagesList=imagesList, selectedImg=selectedImg)
+    # print(datesDict)
+    return render_template('main.html',  users=allUsers, selectedUser=selectedUser, 
+                                         warnings=sortedWarns, selectedWarning=selectedWarning, 
+                                         imagesList=imagesList, selectedImg=selectedImg,
+                                         warningDates=warningDates,
+                                         selectedMonth=selectedMonth, selectedDate=selectedDay,
+                                         selectedType=selectedType, onlyNew=onlyNew)
