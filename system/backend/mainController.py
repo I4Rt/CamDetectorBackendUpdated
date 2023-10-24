@@ -88,7 +88,7 @@ def unauthorized_handler():
  
 @app.route('/setNewWarning', methods=['GET', 'POST'])
 @cross_origin()
-@customExceptionHandler 
+@customExceptionHandler()
 def setNewWarning():
     # {"client_name":"...", "type": "...", "img":"...", "screen":"...", "datetime": "..."}
     userName = request.json['client_name']
