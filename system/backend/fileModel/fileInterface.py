@@ -48,6 +48,7 @@ class FileMethods:
     def _deleteFile(cls, route:str) -> bool:
         # fileInterface = cls.getInstance()
         realPath = path.join(cls.baseRoute, route).replace('\\', '/')
+        print('deleting file', realPath)
         # identy = time()
         # SessionInterface.openSession(realPath, identy)
         try:
@@ -58,7 +59,9 @@ class FileMethods:
             return False
         except Exception as e:
             # SessionInterface.closeSession(realPath, identy)
-            raise( Exception(f'{route}: FileDeleteException: {type(e)}'))
+            # raise( Exception(f'{realPath}: FileDeleteException: {type(e)}'))
+            print(f'{realPath}: FileDeleteException: {type(e)}')
+            return False
         
     @classmethod
     def _delFolder(cls, route) -> True:
@@ -68,10 +71,13 @@ class FileMethods:
         # SessionInterface.openSession(realPath, identy)
         if path.isdir(realPath):
             for localRoute in listdir(realPath):
-                if path.isdir(localRoute):
-                    cls._delFolder(localRoute)
+                tempRoute = path.join(realPath, localRoute).replace('\\', '/')
+                if path.isdir(tempRoute):
+                    cls._delFolder(tempRoute)
                 else:
-                    cls._deleteFile(localRoute)
+                    cls._deleteFile(tempRoute)
+            rmdir(realPath)
+        
         # SessionInterface.closeSession(realPath, identy)
         return True
     
@@ -186,6 +192,7 @@ class FileSystemInterface(FileMethods):
         
         res =  innerForFile(route) # true if del is sucsess and route fas file like
         if not res:
+            print('not file')
             res = innerForFolder(route)
         return res
     
@@ -201,7 +208,7 @@ class FileSystemInterface(FileMethods):
     def getFolderFiles(cls, route):
         @sessionly
         def inner(r):
-            fullRoute = path.join(cls.baseRoute, r)
+            fullRoute = path.join(cls.baseRoute, r).replace('\\', '/')
             return listdir(fullRoute)
         return inner(route)
     

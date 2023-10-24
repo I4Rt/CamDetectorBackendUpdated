@@ -8,8 +8,12 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS, cross_origin
 from datetime import timedelta
 import os
+import flask_login
+
 directory = os.getcwd().replace('\\','/')
 app = Flask(__name__, template_folder=f'{directory}/system/templates', static_folder=f'{directory}/system/backend/fileSystem', static_url_path = '')
+
+
 
 app.config['TIME'] = time()
 app.config['SIZE'] = 1000
@@ -21,5 +25,12 @@ UPLOAD_FOLDER = directory + '/system/backend/fileSystem'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-Session(app)
+
+
+# Session(app)
 cors = CORS(app, supports_credentials=True, resources={r"*": {"origins": "*"}})
+
+# auth
+app.secret_key = 'U wont guess it'
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)

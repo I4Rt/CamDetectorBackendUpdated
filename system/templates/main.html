@@ -142,26 +142,27 @@
                 <img class='m-0 p-0 w-100 h-100 rounded-top' src="system/select.png">
             {%else %}
                 <img class='m-0 p-0 h-100 w-100 rounded' src="{{selectedImg}}" >
-                <!-- <div class='row w-100 ml-0 pr-3 pl-3' style='margin-top: -40px;'>
+                <div class='row w-100  mb-3 ml-0 pr-3 pl-3' style='margin-top: -40px;'>
                     <div class="col rounded bg-light">
                         <div class="row d-flex align-items-center justify-content-space" style='height: 30px;'>
-                            <div class='col-10 border-right' style='font-size: 12px;'>{{img}}</div>
+                            <div class='col-10 border-right' style='font-size: 12px;'>{{warnData}}</div>
                             <div class='col-2'>
-                                <a class='text-danger deleteLink' href="/del?date={{selectedDate}}&imgPath={{img}}&selectedUser={{curUser}}">Удалить</a>
+                                <a class='text-danger deleteLink' href="/deleteWarn?selectedDate={{selectedDate}}&selectedMonth={{selectedMonth}}&selectedType={{selectedType}}&onlyNew={{onlyNew}}&selectedUser={{selectedUser}}&warnName={{selectedWarning}}&selectedImg={{imgRoute}}">Удалить</a>
                             </div>
                         </div>
                     </div>
-                </div> -->
+                </div>
             {%endif %}
         </div>
         <div class="row d-flex d-flex justify-content-left align-items-center flex-nowrap overflow-auto p-0 m-0" style='height: 130px;'>
             {%for imgRoute in imagesList%}
                 <a href='/main?selectedDate={{selectedDate}}&selectedMonth={{selectedMonth}}&selectedType={{selectedType}}&onlyNew={{onlyNew}}&selectedUser={{selectedUser}}&warnName={{selectedWarning}}&selectedImg={{imgRoute}}'>
-                    {%if imgRoute != slectedImg %}
+                    {%if imgRoute != selectedImg %}
+                        <!-- {{imgRoute}}, <br>{{selectedImg}} -->
                         <img class='m-1' src="{{imgRoute}}" style='height: 110px; width: 180px'>
                     {%else%}
-                    
-                        <img class='m-1' src="{{imgRoute}}" style='height: 110px; width: 180px; border: 2px solid rgb(43, 43, 241)'>
+                        <!-- {{imgRoute}}, <br>{{selectedImg}} -->
+                        <img class='m-1' src="{{imgRoute}}" style='height: 110px; width: 180px; border: 3px solid #007bff'>
                     {%endif%}
                 </a>
             {%endfor%}
