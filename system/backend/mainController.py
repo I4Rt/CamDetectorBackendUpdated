@@ -11,6 +11,7 @@ from fileModel.sessionInterface import SessionInterface as si
 from tools.FileUtil import FileUtil
 
 from model.User import User, users
+from model.Data import Data
 
 def setChecked(data):
     data = json.loads(data)
@@ -147,6 +148,8 @@ def setNewWarning():
         else:
             data = {'begin': warnTime, 'end': warnTime, 'checked': False}
         return json.dumps(data)
+    sqlData = Data(f'{warnDay}_{warnTime}', userName, str([FileUtil.convertImageToBytes(image) for image in images]))       # NEW
+    sqlData.save()                                                                                                          # NEW
     
     if not fsm.checkExist(f'{warnDay}/{warnType}/{userName}/{warnIndex}/data.txt'):
         fsm.createFile(f'{warnDay}/{warnType}/{userName}/{warnIndex}/data.txt')
@@ -324,6 +327,10 @@ def deleteWarn():
     # request.args.pop('warnName')
     if warnName:
         day, tp, user, ind = warnName.split('/')
+        data = json.loads(fsm.readFileSystemTxt(f'{day}/{tp}/{user}/{ind}/data.txt'))   # NEW
+        time_ = data['begin']                                                           # NEW 
+        print('deleted from db:', Data.delete(f'{day}_{time_}', user))                  # NEW
+        
         fsm.delete(warnName)
         if len( fsm.getFolderFiles(f'{day}/{tp}/{user}')) <= 1:
             fsm.delete(f'{day}/{tp}/{user}')

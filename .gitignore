@@ -22,3 +22,9 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+system/backend/fileSystem/2023-11-23/1/9/data.txt
+system/backend/fileSystem/2023-11-23/1/9/2/images/img1.png
+*.png
+*.txt
+*.png
+*.pyc

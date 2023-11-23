@@ -34,3 +34,7 @@ cors = CORS(app, supports_credentials=True, resources={r"*": {"origins": "*"}})
 app.secret_key = 'U wont guess it'
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qwerty@localhost:5432/CAM_WARNING_MAIN'
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+db = SQLAlchemy(app)
